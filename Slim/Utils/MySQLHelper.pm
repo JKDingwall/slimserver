@@ -73,15 +73,11 @@ sub init {
 		$prefs->set( dbsource => $class->source() );
 	}
 
-	# Check to see if our private port is being used. If not, we'll assume
-	# the user has setup their own copy of MySQL.
-	if ($prefs->get('dbsource') !~ /port=9092/) {
-		return 1;
-	}
+	# LMS managed MySQL/MariaDB not supported, only system install (1a70baa9aee5312e24c543d4b406d07e94bc558c)
+	main::INFOLOG && $log->info("Not starting MySQL - looks to be user/system configured.");
+	Slim::Utils::OSDetect::getOS->initMySQL($class);
 
-	$log->error("Invalid MySQL configuration.");
-
-	return;
+	return 1;
 }
 
 sub source {

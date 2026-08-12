@@ -908,6 +908,7 @@ sub logLevels {
 		'formats.metadata'           => 'ERROR',
 
 		'database.info'              => 'ERROR',
+		'database.mysql'             => 'ERROR',
 		'database.sql'               => 'ERROR',
 		'database.virtuallibraries'  => 'ERROR',
 

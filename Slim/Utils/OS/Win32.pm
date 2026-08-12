@@ -122,6 +122,8 @@ sub initSearchPath {
 	}
 }
 
+sub initMySQL {}
+
 sub canDBHighMem { 1 }
 
 sub dirsFor {
@@ -207,7 +209,7 @@ sub dirsFor {
 		push @dirs, $path;
 
 	# we don't want these values to return a value
-	} elsif ($dir =~ /^(?:libpath)$/) {
+	} elsif ($dir =~ /^(?:libpath|mysql-language)$/) {
 
 	} else {
 

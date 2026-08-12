@@ -53,7 +53,20 @@ sub dbh {
 sub throw_exception {
 	my ($self, $msg) = @_;
 
-	if ($msg =~ /SQLite.*(?:database disk image is malformed|is not a database)/i) {
+	if ($msg =~ /Connection failed/ && $sqlHelperClass =~ /MySQL/i) {
+		$@ = '';
+
+		if ( $sqlHelperClass && $sqlHelperClass->init( $self->_dbh ) ) {
+			eval { $self->ensure_connected };
+
+			if ($@) {
+				logError("Unable to connect to the database");
+				exit;
+			}
+
+			return;
+		}
+	} elsif ($msg =~ /SQLite.*(?:database disk image is malformed|is not a database)/i) {
 
 		$msg =~ m{/((?:library|persist)\.db)}i;
 
