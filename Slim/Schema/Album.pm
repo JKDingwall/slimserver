@@ -271,17 +271,19 @@ sub artistPerformsOnWork {
 			from albums
 			JOIN tracks ON albums.id = tracks.album
 			JOIN contributor_track ON tracks.id = contributor_track.track
-			WHERE tracks.work = :work
-			AND albums.id = :album
-			AND contributor_track.contributor = :artist
-			AND ( (:performance IS NULL AND tracks.performance IS NULL) OR tracks.performance = :performance )
+			WHERE tracks.work = ?
+			AND albums.id = ?
+			AND contributor_track.contributor = ?
+			AND ( (? IS NULL AND tracks.performance IS NULL) OR tracks.performance = ? )
 		}
 	);
 
-	$sth->bind_param(":work", $work);
-	$sth->bind_param(":album", $self->id);
-	$sth->bind_param(":artist", $artist);
-	$sth->bind_param(":performance", $performance);
+	$sth->bind_param(1, $work);
+	$sth->bind_param(2, $self->id);
+	$sth->bind_param(3, $artist);
+	for ( (4..5) ) {
+		$sth->bind_param($_, $performance);
+	}
 	$sth->execute();
 
 	my ($count) = $sth->fetchrow_array;

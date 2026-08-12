@@ -639,13 +639,15 @@ sub yearTracksNotOnYearAlbums {
 
 	my $sql = "SELECT GROUP_CONCAT(DISTINCT tracks.id) FROM tracks JOIN albums ON albums.id = tracks.album ";
 	$sql .= "JOIN library_track ON library_track.track = tracks.id " if $lib;
-	$sql .= "WHERE albums.year <> :year AND tracks.year = :year ";
-	$sql .= "AND library_track.library = :lib" if $lib;
+	$sql .= "WHERE albums.year <> ? AND tracks.year = ? ";
+	$sql .= "AND library_track.library = ?" if $lib;
 
 	my $sth = Slim::Schema->dbh->prepare_cached($sql);
 
-	$sth->bind_param(":year", $year);
-	$sth->bind_param(":lib", $lib) if $lib;
+	for ( (1..2) ) {
+		$sth->bind_param($_, $year);
+	}
+	$sth->bind_param(3, $lib) if $lib;
 
 	$sth->execute();
 

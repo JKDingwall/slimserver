@@ -800,8 +800,8 @@ sub albumsQuery {
 					FROM tracks
 					JOIN contributor_track ON tracks.id = contributor_track.track
 					JOIN contributors ON contributors.id = contributor_track.contributor
-					WHERE tracks.album = :album AND tracks.work = :work
-						AND ( (:performance IS NULL AND tracks.performance IS NULL) OR tracks.performance = :performance )
+					WHERE tracks.album = ? AND tracks.work = ?
+						AND ( (? IS NULL AND tracks.performance IS NULL) OR tracks.performance = ? )
 						AND contributor_track.role IN (%s)
 					GROUP BY contributor_track.role, contributors.name, contributors.id
 					ORDER BY contributor_track.role, contributors.namesort
@@ -821,7 +821,7 @@ sub albumsQuery {
 					SELECT contributor_album.role AS role, contributors.name AS name, contributors.id AS id
 					FROM contributor_album
 					JOIN contributors ON contributors.id = contributor_album.contributor
-					WHERE contributor_album.album = :album
+					WHERE contributor_album.album = ?
 					AND contributor_album.role IN (%s)
 					ORDER BY contributor_album.role, contributors.namesort
 				}, join(',', @linkRoleIds) );
@@ -919,10 +919,12 @@ sub albumsQuery {
 			# want multiple artists?
 			if ( $contributorSql && $c->{'albums.contributor'} != $vaObjId && !$c->{'albums.compilation'} ) {
 				$contributorSth ||= $dbh->prepare_cached($contributorSql);
-				$contributorSth->bind_param(":album", $c->{'albums.id'});
+				$contributorSth->bind_param(1, $c->{'albums.id'});
 				if ( $work ) {
-					$contributorSth->bind_param(":work", $work);
-					$contributorSth->bind_param(":performance", $c->{'tracks.performance'}||undef);
+					$contributorSth->bind_param(2, $work);
+					for ( (3..4) ) {
+						$contributorSth->bind_param($_, $c->{'tracks.performance'}||undef);
+					}
 				}
 				my $contributorArray = $dbh->selectall_arrayref($contributorSth,{ Slice => {} });
 
